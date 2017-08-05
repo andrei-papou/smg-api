@@ -1,3 +1,14 @@
 from django.contrib import admin
+from .models import Department, DepartmentSpecialization
 
-# Register your models here.
+
+class DepartmentSpecializationAdmin(admin.ModelAdmin):
+    pass
+
+
+class DepartmentAdmin(admin.ModelAdmin):
+    pass
+
+
+admin.site.register(DepartmentSpecialization, DepartmentSpecializationAdmin)
+admin.site.register(Department, DepartmentAdmin)

@@ -14,8 +14,10 @@ class User(AbstractUser):
         'patronymic'
     ]
 
-    phone = models.CharField(max_length=16, unique=True)
+    phone = models.CharField(max_length=127, unique=True)
     skype = models.CharField(max_length=255, unique=True)
+    photo = models.ImageField(null=True)
+    photo_large = models.ImageField(null=True)
     birthday = models.DateField()
     employment_date = models.DateField()
     patronymic = models.CharField(max_length=255)
@@ -29,6 +31,11 @@ class User(AbstractUser):
 
     def get_full_name(self):
         return '{} {}'.format(self.get_short_name(), self.patronymic)
+
+    @property
+    def full_name(self):
+        name = '{} {}'.format(self.get_short_name(), self.patronymic)
+        return name
 
     @property
     def token(self):

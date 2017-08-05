@@ -67,7 +67,7 @@
             export LC_CTYPE="en_US.UTF-8"
 
     - name: Make virtualenv
-      shell: virtualenv -p /usr/bin/python3 /.virtualenvs/ads
+      shell: virtualenv -p /usr/bin/python3 /.virtualenvs/smg
       sudo: yes
 
     - name: Making vagrant user the owner of /.virtualenvs dir

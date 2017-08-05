@@ -1,12 +1,13 @@
 from rest_framework import status
 from rest_framework.views import APIView
-from rest_framework.mixins import ListModelMixin
+from rest_framework.mixins import ListModelMixin, UpdateModelMixin
 from rest_framework.viewsets import GenericViewSet
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.authtoken.models import Token
 from .models import User
 from .serializers import SignInSerializer, SelfDataSerializer, UserSerializer
+from .permissions import IsSelfOrReadOnly
 
 
 class SignInView(APIView):
@@ -21,8 +22,8 @@ class SignInView(APIView):
         return Response(status=status.HTTP_200_OK, data=serializer.data)
 
 
-class AccountsViewSet(ListModelMixin, GenericViewSet):
-    permission_classes = (IsAuthenticated,)
+class AccountsViewSet(ListModelMixin, UpdateModelMixin, GenericViewSet):
+    permission_classes = (IsAuthenticated, IsSelfOrReadOnly)
     serializer_class = UserSerializer
 
     def get_queryset(self):

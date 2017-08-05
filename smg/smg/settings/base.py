@@ -26,7 +26,6 @@ SECRET_KEY = 'q=)ww5-4#e=mk263#gqatu=dupj9%=7j6huxc4l-))%4s!cm42'
 
 ALLOWED_HOSTS = []
 
-
 # Application definition
 
 VENDOR_APPS = [
@@ -38,11 +37,13 @@ VENDOR_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'rest_framework.authtoken',
+    'corsheaders'
 ]
 
 CUSTOM_APPS = [
     'authentication',
     'departments',
+    'out_of_office',
 ]
 
 INSTALLED_APPS = VENDOR_APPS + CUSTOM_APPS
@@ -50,6 +51,7 @@ INSTALLED_APPS = VENDOR_APPS + CUSTOM_APPS
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -114,10 +116,13 @@ USE_I18N = True
 
 USE_L10N = True
 
-USE_TZ = True
+USE_TZ = False
 
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.10/howto/static-files/
 
 STATIC_URL = '/static/'
+
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+MEDIA_URL = '/media/'

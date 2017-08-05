@@ -47,8 +47,11 @@ class UserSerializer(serializers.ModelSerializer):
             'skype',
             'birthday',
             'employment_date',
+            'photo',
+            'photo_large',
             'first_name',
             'last_name',
             'patronymic',
             'department',
+            'is_manager',
         )

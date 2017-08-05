@@ -1,8 +1,9 @@
 from .base import *
 
-ALLOWED_HOSTS = ['0.0.0.0']
+ALLOWED_HOSTS = ['*']
+CORS_ORIGIN_ALLOW_ALL = True
 
-SECRET_KEY = os.environ['SECRET_KEY']
+SECRET_KEY = os.environ.get('SECRET_KEY', '34ff3@d33(()OD#J*DJSSNjdjwd2#31')
 
 DEBUG = True
 

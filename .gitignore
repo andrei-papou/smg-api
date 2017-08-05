@@ -1,2 +1,7 @@
 .idea/
 .vagrant/
+.env
+.idea
+.vagrant
+**/__pycache__/**
+__pycache__/

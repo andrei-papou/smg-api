@@ -1,12 +1,14 @@
+import json
 from datetime import datetime
-from django.test import TestCase
 from django.urls import reverse
 from rest_framework import status
+from rest_framework.test import APITestCase
 from rest_framework.authtoken.models import Token
+from common.factories import UserFactory, DepartmentFactory
 from .models import User
 
 
-class SigninTestCase(TestCase):
+class SigninTestCase(APITestCase):
     user_data = {
         'username': 'test.account',
         'password': 'strong-password',
@@ -59,5 +61,65 @@ class SigninTestCase(TestCase):
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
 
-class AccountsTestCase(TestCase):
-    pass
+class AccountsTestCase(APITestCase):
+
+    def setUp(self):
+        self.department1 = DepartmentFactory()
+        self.department2 = DepartmentFactory()
+        self.accounts = []
+        for i in range(10):
+            self.accounts.append(UserFactory(department=self.department1))
+        for i in range(5):
+            self.accounts.append(UserFactory(department=self.department2))
+
+    def test_returns_department_accounts_for_non_manager(self):
+        me = UserFactory(department=self.department2)
+        self.client.force_authenticate(user=me)
+        response = self.client.get(reverse('auth:accounts'))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data), 6)
+
+    def test_returns_all_accounts_to_manager(self):
+        me = UserFactory(department=self.department2, is_manager=True)
+        self.client.force_authenticate(user=me)
+        response = self.client.get(reverse('auth:accounts'))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data), 16)
+
+    def test_returns_400_to_anon(self):
+        response = self.client.get(reverse('auth:accounts'))
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
+    def test_can_update_self(self):
+        new_name = 'Carl'
+        me = UserFactory(department=self.department2)
+        self.client.force_authenticate(user=me)
+        response = self.client.patch(reverse('auth:accounts-detail', kwargs={'pk': me.pk}),
+                                     data=json.dumps({'first_name': new_name}),
+                                     content_type='application/json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        me.refresh_from_db()
+        self.assertEqual(me.first_name, new_name)
+
+    def test_other_cannot_update(self):
+        new_name = 'Carl'
+        account = self.accounts[0]
+        old_name = account.first_name
+        self.client.force_authenticate(user=account)
+        response = self.client.patch(reverse('auth:accounts-detail', kwargs={'pk': self.accounts[1].pk}),
+                                     data=json.dumps({'first_name': new_name}),
+                                     content_type='application/json')
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        account.refresh_from_db()
+        self.assertEqual(account.first_name, old_name)
+
+    def test_anon_cannot_update(self):
+        new_name = 'Carl'
+        account = self.accounts[0]
+        old_name = account.first_name
+        response = self.client.patch(reverse('auth:accounts-detail', kwargs={'pk': account.pk}),
+                                     data=json.dumps({'first_name': new_name}),
+                                     content_type='application/json')
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+        account.refresh_from_db()
+        self.assertEqual(account.first_name, old_name)
